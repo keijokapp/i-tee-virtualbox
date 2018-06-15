@@ -8,10 +8,10 @@ import app from './lib/app';
 const server = http.createServer(app);
 
 server.on('error', e => {
-	logger.error('Server error: %s', e.message);
+	logger.error('Server error', { error: e });
 });
 
 server.listen(config.port, () => {
 	const address = server.address();
-	logger.info('Listening on %s:%d', address.address, address.port);
+	logger.info('Listening', {address: address.address, port: address.port });
 });
