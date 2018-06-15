@@ -9,22 +9,22 @@
     "test": "babel-node ./node_modules/.bin/_mocha test.js"
   },
   "dependencies": {
-    "babel-cli": "latest",
-    "babel-plugin-transform-es2015-modules-commonjs": "latest",
-    "babel-plugin-syntax-async-functions": "latest",
-    "body-parser": "latest",
-    "express": "latest",
-    "express-jsonschema": "latest",
-    "winston": "latest",
-    "express-winston": "latest"
+    "babel-cli": "^6.26.0",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-jsonschema": "^1.1.6",
+    "express-winston": "^2.5.1",
+    "winston": "^3.0.0"
   },
   "devDependencies": {
-    "apidoc": "latest",
-    "apidoc-markdown": "latest",
-    "mocha": "latest",
-    "supertest": "latest",
-    "mockery": "latest",
-    "shell-escape": "latest",
-    "chai": "latest"
+    "apidoc": "^0.17.6",
+    "apidoc-markdown": "^0.2.0",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "mockery": "^2.1.0",
+    "shell-escape": "^0.2.0",
+    "supertest": "^3.1.0"
   }
 }
