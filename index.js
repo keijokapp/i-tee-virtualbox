@@ -1,6 +1,7 @@
 #!/usr/bin/babel-node
 
 import http from 'http';
+import notify from 'sd-notify';
 import { logger } from './lib/common';
 import config from './lib/config';
 import app from './lib/app';
@@ -14,4 +15,5 @@ server.on('error', e => {
 server.listen(config.port, () => {
 	const address = server.address();
 	logger.info('Listening', {address: address.address, port: address.port });
+	notify.ready();
 });
