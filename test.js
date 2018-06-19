@@ -94,6 +94,20 @@ describe('list machines', () => {
 			id: 'qasdfasd'
 		}]);
 	});
+
+	it('should filter machines with regex', async() => {
+		registerMock(['list', 'vms'], mock(null, '"a123o" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"dlskfmkngmn" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n"a0-2" {32e53eab-8e77-462d-b708-bbe678e490fd}'));
+		const res = await request.get('/machine?filter=' + encodeURIComponent('^a[0-9]+'))
+			.expect(200);
+		expect(res.body).to.deep.equal([{ id: 'a123o' }, { id: 'a0-2' }]);
+	})
+
+	it('fail listning machines because of unsafe filter', async() => {
+		registerMock(['list', 'vms'], mock(null, '"a123o" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"dlskfmkngmn" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n"a0-2" {32e53eab-8e77-462d-b708-bbe678e490fd}'));
+		const res = await request.get('/machine?filter=' + encodeURIComponent('^a([0-9]+){2}'))
+			.expect(400);
+		expect(res.body).to.deep.equal({ error: 'Bad request', message: 'Given filter is considered unsafe' });
+	})
 });
 
 describe('create machine', () => {
