@@ -42,6 +42,7 @@ VirtualBox API provider for I-Tee
 |---------|-----------|--------------------------------------|
 | running			| string			| **optional** <p>Query flag to only include running machines</p>							|
 | detailed			| string			| **optional** <p>Query flag to include details in response</p>							|
+| ip			| string			| **optional** <p>Query flag to include IP-s in response</p>							|
 | filter			| string			| **optional** <p>Regular expression to filter machines</p>							|
 
 ## Retrieve information about machine
@@ -56,6 +57,7 @@ VirtualBox API provider for I-Tee
 | Name    | Type      | Description                          |
 |---------|-----------|--------------------------------------|
 | machine			| string			|  <p>Machine name</p>							|
+| ip			| string			| **optional** <p>Query flag to include IP-s in response</p>							|
 
 ## Change state of machine
 
@@ -68,6 +70,7 @@ VirtualBox API provider for I-Tee
 
 | Name    | Type      | Description                          |
 |---------|-----------|--------------------------------------|
+| ip			| string			| **optional** <p>Query flag to include IP-s in response</p>							|
 | machine			| string			|  <p>Machine name</p>							|
 | image			| string			| **optional** <p>Template name used to create macine if it does not exist</p>							|
 | networks			| string[]			| **optional** <p>Networks to be assigned to NIC-s</p>							|

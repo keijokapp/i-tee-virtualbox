@@ -95,6 +95,60 @@ describe('list machines', () => {
 		}]);
 	});
 
+	it('should list all machines with IP-s', async () => {
+		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
+		registerMock(['guestproperty', 'enumerate', 'qasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.10, timestamp: 1530013620606737000, flags: \nName: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 192.168.6.11, timestamp: 1530013630603413000, flags: \n'));
+		registerMock(['guestproperty', 'enumerate', 'qasdfasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
+		const res = await request.get('/machine?ip')
+			.expect(200);
+		expect(res.body).to.deep.equal([{
+			id: 'qasd',
+			ip: {
+				0: '192.168.6.11',
+				1: '192.168.6.10'
+			}
+
+		}, {
+			id: 'qasdfasd',
+			ip: {
+				0: '172.16.22.102',
+				1: '192.168.6.254'
+			}
+		}]);
+	});
+
+	it('should list all machines with details and IP-s', async () => {
+		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
+		registerMock(['showvminfo', 'qasd', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
+		registerMock(['showvminfo', 'qasdfasd', '--machinereadable'], mock(null, 'VMState="stopped"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
+		registerMock(['guestproperty', 'enumerate', 'qasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.10, timestamp: 1530013620606737000, flags: \nName: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 192.168.6.11, timestamp: 1530013630603413000, flags: \n'));
+		registerMock(['guestproperty', 'enumerate', 'qasdfasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
+		const res = await request.get('/machine?detailed&ip')
+			.expect(200);
+		expect(res.body).to.deep.equal([{
+			state: 'running',
+			'rdp-port': 8693,
+			snapshot: 's4st;e4tjs;g',
+			name: 'qasd',
+			id: 'qasd',
+			ip: {
+				0: '192.168.6.11',
+				1: '192.168.6.10'
+			}
+
+		}, {
+			state: 'stopped',
+			'rdp-port': 8693,
+			snapshot: 's4st;e4tjs;g',
+			name: 'qasdfasd',
+			id: 'qasdfasd',
+			ip: {
+				0: '172.16.22.102',
+				1: '192.168.6.254'
+			}
+		}]);
+	});
+
 	it('should filter machines with regex', async() => {
 		registerMock(['list', 'vms'], mock(null, '"a123o" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"dlskfmkngmn" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n"a0-2" {32e53eab-8e77-462d-b708-bbe678e490fd}'));
 		const res = await request.get('/machine?filter=' + encodeURIComponent('^a[0-9]+'))
@@ -250,6 +304,20 @@ describe('get machine info', () => {
 			.expect(200);
 		expect(res.body).to.have.deep.property('machine', { state: 'running' });
 	});
+
+	it('retrieve machine info and IP-s', async() => {
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['guestproperty', 'enumerate', 'hehe', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
+		const res = await request.get('/machine/hehe?ip')
+			.expect(200);
+		expect(res.body).to.have.deep.property('machine', {
+			state: 'running',
+			ip: {
+				0: '172.16.22.102',
+				1: '192.168.6.254'
+			} });
+
+	});
 });
 
 describe('update machine', () => {
@@ -308,6 +376,25 @@ describe('update machine', () => {
 			.expect(200);
 		expect(res.body).to.have.deep.property('machine', { state: 'running', 'rdp-port': 8693 });
 	});
+
+	it('should retrieve IP with update request', async() => {
+		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693'));
+		registerMock(['guestproperty', 'enumerate', 'hehe', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
+		const res = await request.put('/machine/hehe?ip')
+			.send({
+				state: 'running'
+			})
+			.expect(200);
+		expect(res.body).to.have.deep.property('machine', {
+			state: 'running',
+			'rdp-port': 8693,
+			ip: {
+				0: '172.16.22.102',
+				1: '192.168.6.254'
+			}
+		});
+	})
 });
 
 describe('delete machine', () => {
