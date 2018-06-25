@@ -42,6 +42,7 @@ VirtualBox API provider for I-Tee
 |---------|-----------|--------------------------------------|
 | running			| string			| **optional** <p>Query flag to only include running machines</p>							|
 | detailed			| string			| **optional** <p>Query flag to include details in response</p>							|
+| filter			| string			| **optional** <p>Regular expression to filter machines</p>							|
 
 ## Retrieve information about machine
 
