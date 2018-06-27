@@ -84,13 +84,11 @@ describe('list machines', () => {
 			state: 'running',
 			'rdp-port': 8693,
 			snapshot: 's4st;e4tjs;g',
-			name: 'qasd',
 			id: 'qasd'
 		}, {
 			state: 'stopped',
 			'rdp-port': 8693,
 			snapshot: 's4st;e4tjs;g',
-			name: 'qasdfasd',
 			id: 'qasdfasd'
 		}]);
 	});
@@ -129,7 +127,6 @@ describe('list machines', () => {
 			state: 'running',
 			'rdp-port': 8693,
 			snapshot: 's4st;e4tjs;g',
-			name: 'qasd',
 			id: 'qasd',
 			ip: {
 				0: '192.168.6.11',
@@ -140,7 +137,6 @@ describe('list machines', () => {
 			state: 'stopped',
 			'rdp-port': 8693,
 			snapshot: 's4st;e4tjs;g',
-			name: 'qasdfasd',
 			id: 'qasdfasd',
 			ip: {
 				0: '172.16.22.102',
@@ -175,7 +171,8 @@ describe('create machine', () => {
 				image: 'fuck'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running' });
+
+		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
 	it('should set up simple machine without snapshot', async() => {
@@ -188,7 +185,7 @@ describe('create machine', () => {
 				image: 'fuck'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running' });
+		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
 	it('should create machine with networks', async() => {
@@ -206,7 +203,7 @@ describe('create machine', () => {
 				networks: ['outnet', 'intnet']
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running' });
+		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
 	it('should create machine with DMI properties', async() => {
@@ -233,7 +230,7 @@ describe('create machine', () => {
 				}
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running' });
+		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
 	it('should create machine with RDP user', async() => {
@@ -251,7 +248,7 @@ describe('create machine', () => {
 				'rdp-password': 'random-password'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running' });
+		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
 	it('should create and start machine', async() => {
@@ -266,7 +263,7 @@ describe('create machine', () => {
 				state: 'starting'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running' });
+		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
 	it('should create and start machine with RDP', async() => {
@@ -286,7 +283,7 @@ describe('create machine', () => {
 				'rdp-password': 'random-password'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { 'rdp-port': 8693, state: 'running' });
+		expect(res.body).to.deep.equal({ 'rdp-port': 8693, state: 'running' });
 	});
 });
 
@@ -295,14 +292,14 @@ describe('get machine info', () => {
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
 		const res = await request.get('/machine/hehe')
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running', 'rdp-port': 8693, snapshot: 's4st;e4tjs;g' });
+		expect(res.body).to.deep.equal( { state: 'running', 'rdp-port': 8693, snapshot: 's4st;e4tjs;g' });
 	});
 
 	it('retrieve machine info w/o RDP and snapshot', async() => {
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
 		const res = await request.get('/machine/hehe')
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running' });
+		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
 	it('retrieve machine info and IP-s', async() => {
@@ -310,7 +307,7 @@ describe('get machine info', () => {
 		registerMock(['guestproperty', 'enumerate', 'hehe', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
 		const res = await request.get('/machine/hehe?ip')
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', {
+		expect(res.body).to.deep.equal({
 			state: 'running',
 			ip: {
 				0: '172.16.22.102',
@@ -329,7 +326,7 @@ describe('update machine', () => {
 				state: 'starting'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running', 'rdp-port': 8693 });
+		expect(res.body).to.deep.equal({ state: 'running', 'rdp-port': 8693 });
 	});
 
 	it('set machine state to running', async() => {
@@ -340,7 +337,7 @@ describe('update machine', () => {
 				state: 'running'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running', 'rdp-port': 8693 });
+		expect(res.body).to.deep.equal({ state: 'running', 'rdp-port': 8693 });
 	});
 
 	it('set machine state to stopped', async() => {
@@ -351,7 +348,7 @@ describe('update machine', () => {
 				state: 'stopped'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'poweroff' });
+		expect(res.body).to.deep.equal({ state: 'poweroff' });
 	});
 
 	it('set machine state to stopped', async() => {
@@ -362,7 +359,7 @@ describe('update machine', () => {
 				state: 'stopped'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'poweroff' });
+		expect(res.body).to.deep.equal({ state: 'poweroff' });
 	});
 
 	it('reset RDP', async() => {
@@ -374,7 +371,7 @@ describe('update machine', () => {
 				'rdp-username': 'asd'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', { state: 'running', 'rdp-port': 8693 });
+		expect(res.body).to.deep.equal({ state: 'running', 'rdp-port': 8693 });
 	});
 
 	it('should retrieve IP with update request', async() => {
@@ -386,7 +383,7 @@ describe('update machine', () => {
 				state: 'running'
 			})
 			.expect(200);
-		expect(res.body).to.have.deep.property('machine', {
+		expect(res.body).to.deep.equal({
 			state: 'running',
 			'rdp-port': 8693,
 			ip: {
