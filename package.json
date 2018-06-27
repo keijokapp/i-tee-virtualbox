@@ -1,6 +1,6 @@
 {
   "name": "i-tee-virtualbox",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "VirtualBox API provider for I-Tee",
   "main": "index.js",
   "author": "Keijo Kapp <keijo.kapp@gmail.com>",

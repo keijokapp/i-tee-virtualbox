@@ -1,4 +1,4 @@
-# i-tee-virtualbox v0.1.1
+# i-tee-virtualbox v0.2.0
 
 VirtualBox API provider for I-Tee
 
