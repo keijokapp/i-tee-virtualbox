@@ -366,17 +366,6 @@ describe('update machine', () => {
 		expect(res.body).to.deep.equal({ state: 'poweroff' });
 	});
 
-	it('set machine state to stopped', async() => {
-		registerMock(['controlvm', 'hehe', 'poweroff'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="poweroff"\nvrde="on"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
-			.send({
-				state: 'stopped'
-			})
-			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'poweroff' });
-	});
-
 	it('reset RDP', async() => {
 		registerMock(['controlvm', 'hehe', 'vrde', 'off'], mock());
 		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
