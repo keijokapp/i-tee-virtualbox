@@ -73,6 +73,7 @@ VirtualBox API provider for I-Tee
 | ip			| string			| **optional** <p>Query flag to include IP-s in response</p>							|
 | machine			| string			|  <p>Machine name</p>							|
 | image			| string			| **optional** <p>Template name used to create macine if it does not exist</p>							|
+| groups			| string[]			| **optional** <p>Groups to pot machine into</p>							|
 | networks			| string[]			| **optional** <p>Networks to be assigned to NIC-s</p>							|
 | dmi			| object			| **optional** <p>DMI properties in <code>dmidecode</code> format</p>							|
 | rdp-username			| object			| **optional** <p>RDP username</p>							|

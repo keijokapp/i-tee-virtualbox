@@ -188,6 +188,21 @@ describe('create machine', () => {
 		expect(res.body).to.deep.equal({ state: 'running' });
 	});
 
+	it('should create machine with groups', async() => {
+		registerMock(['modifyvm', 'hehe', '--groups', 'fuckery1,fuckery2'], mock('Could not find a registered machine named'));
+		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock());
+		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
+		registerMock(['modifyvm', 'hehe', '--groups', 'fuckery1,fuckery2'], mock());
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		const res = await request.put('/machine/hehe')
+			.send({
+				image: 'fuck',
+				groups: ['fuckery1', 'fuckery2']
+			})
+			.expect(200);
+		expect(res.body).to.deep.equal({ state: 'running' });
+	});
+
 	it('should create machine with networks', async() => {
 		registerMock(['modifyvm', 'hehe', '--nic1', 'intnet'], mock('Could not find a registered machine named'));
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock());
