@@ -378,6 +378,21 @@ describe('update machine', () => {
 		expect(res.body).to.deep.equal({ state: 'running', 'rdp-port': 8693 });
 	});
 
+	it('update networks of running machine', async() => {
+		registerMock(['modifyvm', 'hehe', '--nic1', 'intnet'], mock('is already locked for a session'));
+		registerMock(['controlvm', 'hehe', 'nic1', 'intnet', 'outnet'], mock());
+		registerMock(['modifyvm', 'hehe', '--nic2', 'intnet'], mock('is already locked for a session'));
+		registerMock(['controlvm', 'hehe', 'nic2', 'intnet', 'intnet'], mock());
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"'));
+		const res = await request.put('/machine/hehe')
+			.send({
+				image: 'fuck',
+				networks: ['outnet', 'intnet']
+			})
+			.expect(200);
+		expect(res.body).to.deep.equal({ state: 'running' });
+	});
+
 	it('should retrieve IP with update request', async() => {
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693'));
