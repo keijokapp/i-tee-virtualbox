@@ -14,6 +14,6 @@ server.on('error', e => {
 
 server.listen(config.port, () => {
 	const address = server.address();
-	logger.info('Listening', {address: address.address, port: address.port });
+	logger.info('Listening', { address: address.address, port: address.port });
 	notify.ready();
 });
