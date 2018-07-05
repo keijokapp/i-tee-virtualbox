@@ -64,36 +64,44 @@ describe('list machines', () => {
 		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
 		const res = await request.get('/machine')
 			.expect(200);
-		expect(res.body).to.deep.equal([{ id: 'qasd' }, { id: 'qasdfasd' }]);
+		expect(res.body).to.deep.equal([
+			{ id: 'qasd', uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f' },
+			{ id: 'qasdfasd', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e' }
+		]);
 	});
 
-	it('should list running machines', async() => {
+	it('should list running machines', async () => {
 		registerMock(['list', 'runningvms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
 		const res = await request.get('/machine?running')
 			.expect(200);
-		expect(res.body).to.deep.equal([{ id: 'qasd' }, { id: 'qasdfasd' }]);
+		expect(res.body).to.deep.equal([
+			{ id: 'qasd', uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f' },
+			{ id: 'qasdfasd', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e' }
+		]);
 	});
 
 	it('should list all machines with details', async() => {
 		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
-		registerMock(['showvminfo', 'qasd', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
-		registerMock(['showvminfo', 'qasdfasd', '--machinereadable'], mock(null, 'VMState="poweroff"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
+		registerMock(['showvminfo', 'qasd', '--machinereadable'], mock(null, 'UUID="8a8abd5c-de63-4926-944f-7489b61bc88f"\nVMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
+		registerMock(['showvminfo', 'qasdfasd', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="poweroff"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
 		const res = await request.get('/machine?detailed')
 			.expect(200);
 		expect(res.body).to.deep.equal([{
 			state: 'running',
 			'rdp-port': 8693,
 			snapshot: 's4st;e4tjs;g',
-			id: 'qasd'
+			id: 'qasd',
+			uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f'
 		}, {
 			state: 'poweroff',
 			'rdp-port': 8693,
 			snapshot: 's4st;e4tjs;g',
-			id: 'qasdfasd'
+			id: 'qasdfasd',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e'
 		}]);
 	});
 
-	it('should list all machines with IP-s', async () => {
+	it('should list all machines with IP-s', async() => {
 		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
 		registerMock(['guestproperty', 'enumerate', 'qasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.10, timestamp: 1530013620606737000, flags: \nName: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 192.168.6.11, timestamp: 1530013630603413000, flags: \n'));
 		registerMock(['guestproperty', 'enumerate', 'qasdfasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
@@ -101,6 +109,7 @@ describe('list machines', () => {
 			.expect(200);
 		expect(res.body).to.deep.equal([{
 			id: 'qasd',
+			uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f',
 			ip: {
 				0: '192.168.6.11',
 				1: '192.168.6.10'
@@ -108,6 +117,7 @@ describe('list machines', () => {
 
 		}, {
 			id: 'qasdfasd',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
 			ip: {
 				0: '172.16.22.102',
 				1: '192.168.6.254'
@@ -149,7 +159,10 @@ describe('list machines', () => {
 		registerMock(['list', 'vms'], mock(null, '"a123o" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"dlskfmkngmn" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n"a0-2" {32e53eab-8e77-462d-b708-bbe678e490fd}'));
 		const res = await request.get('/machine?filter=' + encodeURIComponent('^a[0-9]+'))
 			.expect(200);
-		expect(res.body).to.deep.equal([{ id: 'a123o' }, { id: 'a0-2' }]);
+		expect(res.body).to.deep.equal([
+			{ id: 'a123o', uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f' },
+			{ id: 'a0-2', uuid: '32e53eab-8e77-462d-b708-bbe678e490fd' }
+		]);
 	})
 
 	it('fail listning machines because of unsafe filter', async() => {
@@ -165,27 +178,27 @@ describe('create machine', () => {
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock('Could not find a registered machine named'));
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock(null, 'CurrentSnapshotName="test-snapshot"'));
 		registerMock(['clonevm', 'fuck', '--snapshot', 'test-snapshot', '--name', 'hehe', '--options', 'link', '--register'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck'
 			})
 			.expect(200);
 
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should set up simple machine without snapshot', async() => {
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock('Could not find a registered machine named'));
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock());
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should create machine with groups', async() => {
@@ -193,14 +206,14 @@ describe('create machine', () => {
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock());
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
 		registerMock(['modifyvm', 'hehe', '--groups', 'fuckery1,fuckery2'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
 				groups: ['fuckery1', 'fuckery2']
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should create machine with networks', async() => {
@@ -211,14 +224,14 @@ describe('create machine', () => {
 		registerMock(['modifyvm', 'hehe', '--intnet1', 'outnet'], mock());
 		registerMock(['modifyvm', 'hehe', '--nic2', 'intnet'], mock());
 		registerMock(['modifyvm', 'hehe', '--intnet2', 'intnet'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
 				networks: ['outnet', 'intnet']
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should create machine with DMI properties', async() => {
@@ -231,7 +244,7 @@ describe('create machine', () => {
 		registerMock(['setextradata', 'hehe', 'VBoxInternal/Devices/pcbios/0/Config/DmiSystemVendor', 'system vendor'], mock());
 		registerMock(['setextradata', 'hehe', 'VBoxInternal/Devices/pcbios/0/Config/DmiSystemVersion', 'system version'], mock());
 		registerMock(['setextradata', 'hehe', 'VBoxInternal/Devices/pcbios/0/Config/DmiSystemSerial', 'system serial number'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
@@ -245,7 +258,7 @@ describe('create machine', () => {
 				}
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should create machine with RDP user', async() => {
@@ -255,7 +268,7 @@ describe('create machine', () => {
 		registerMock(['controlvm', 'hehe', 'vrde', 'off'], mock());
 		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
 		registerMock(['setextradata', 'hehe', 'VBoxAuthSimple/users/random-username', '21937d294d34fe2a07098595fc91a0e347bd30c32cc20afd7086367e46d6c599'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
@@ -263,7 +276,7 @@ describe('create machine', () => {
 				'rdp-password': 'random-password'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should create and start machine', async() => {
@@ -271,14 +284,14 @@ describe('create machine', () => {
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock());
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
 				state: 'starting'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should create and start machine with RDP', async() => {
@@ -289,7 +302,7 @@ describe('create machine', () => {
 		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
 		registerMock(['setextradata', 'hehe', 'VBoxAuthSimple/users/random-username', '21937d294d34fe2a07098595fc91a0e347bd30c32cc20afd7086367e46d6c599'], mock());
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=8693'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=8693'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
@@ -298,31 +311,44 @@ describe('create machine', () => {
 				'rdp-password': 'random-password'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ 'rdp-port': 8693, state: 'running' });
+		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
+			'rdp-port': 8693,
+			state: 'running'
+		});
 	});
 });
 
 describe('get machine info', () => {
 	it('retrieve machine info w/ RDP and snapshot', async() => {
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
 		const res = await request.get('/machine/hehe')
 			.expect(200);
-		expect(res.body).to.deep.equal( { state: 'running', 'rdp-port': 8693, snapshot: 's4st;e4tjs;g' });
+		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
+			state: 'running',
+			'rdp-port': 8693,
+			snapshot: 's4st;e4tjs;g'
+		});
 	});
 
 	it('retrieve machine info w/o RDP and snapshot', async() => {
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.get('/machine/hehe')
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('retrieve machine info and IP-s', async() => {
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		registerMock(['guestproperty', 'enumerate', 'hehe', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
 		const res = await request.get('/machine/hehe?ip')
 			.expect(200);
 		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
 			state: 'running',
 			ip: {
 				0: '172.16.22.102',
@@ -335,47 +361,62 @@ describe('get machine info', () => {
 describe('update machine', () => {
 	it('set machine state to starting', async() => {
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				state: 'starting'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running', 'rdp-port': 8693 });
+		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
+			state: 'running',
+			'rdp-port': 8693
+		});
 	});
 
 	it('set machine state to running', async() => {
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				state: 'running'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running', 'rdp-port': 8693 });
+		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
+			state: 'running',
+			'rdp-port': 8693
+		});
 	});
 
 	it('set machine state to poweroff', async() => {
 		registerMock(['controlvm', 'hehe', 'poweroff'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="poweroff"\nvrde="on"\nvrdeport=-1'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="poweroff"\nvrde="on"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				state: 'poweroff'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'poweroff' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'poweroff' });
 	});
 
 	it('reset RDP', async() => {
 		registerMock(['controlvm', 'hehe', 'vrde', 'off'], mock());
 		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				'rdp-username': 'asd'
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running', 'rdp-port': 8693 });
+		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
+			state: 'running',
+			'rdp-port': 8693
+		});
 	});
 
 	it('update networks of running machine', async() => {
@@ -383,19 +424,19 @@ describe('update machine', () => {
 		registerMock(['controlvm', 'hehe', 'nic1', 'intnet', 'outnet'], mock());
 		registerMock(['modifyvm', 'hehe', '--nic2', 'intnet'], mock('is already locked for a session'));
 		registerMock(['controlvm', 'hehe', 'nic2', 'intnet', 'intnet'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
 				networks: ['outnet', 'intnet']
 			})
 			.expect(200);
-		expect(res.body).to.deep.equal({ state: 'running' });
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
 
 	it('should retrieve IP with update request', async() => {
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
-		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693'));
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
 		registerMock(['guestproperty', 'enumerate', 'hehe', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
 		const res = await request.put('/machine/hehe?ip')
 			.send({
@@ -403,6 +444,8 @@ describe('update machine', () => {
 			})
 			.expect(200);
 		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
 			state: 'running',
 			'rdp-port': 8693,
 			ip: {
