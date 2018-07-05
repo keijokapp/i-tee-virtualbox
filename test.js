@@ -459,7 +459,7 @@ describe('update machine', () => {
 describe('delete machine', () => {
 	it('delete machine', async() => {
 		registerMock(['controlvm', 'hehe', 'poweroff'], mock());
-		registerMock(['unregistervm', 'hehe', '--delete'], mock(null, 'VMState="running"\nvrde="on"\nvrdeport=8693'));
+		registerMock(['unregistervm', 'hehe', '--delete'], mock());
 		const res = await request.delete('/machine/hehe')
 			.expect(200);
 	});
