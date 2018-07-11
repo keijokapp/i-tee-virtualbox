@@ -420,6 +420,34 @@ describe('update machine', () => {
 		});
 	});
 
+	it('set machine state to acpipowerbutton', async () => {
+		registerMock(['controlvm', 'hehe', 'acpipowerbutton'], mock());
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=-1'));
+		const res = await request.put('/machine/hehe')
+			.send({
+				state: 'acpipowerbutton'
+			})
+			.expect(200);
+		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
+	});
+
+	it('reset RDP', async () => {
+		registerMock(['controlvm', 'hehe', 'vrde', 'off'], mock());
+		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
+		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
+		const res = await request.put('/machine/hehe')
+			.send({
+				'rdp-username': 'asd'
+			})
+			.expect(200);
+		expect(res.body).to.deep.equal({
+			id: 'hehe',
+			uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e',
+			state: 'running',
+			'rdp-port': 8693
+		});
+	});
+
 	it('update networks of running machine', async () => {
 		registerMock(['modifyvm', 'hehe', '--nic1', 'intnet'], mock('is already locked for a session'));
 		registerMock(['controlvm', 'hehe', 'nic1', 'intnet', 'outnet'], mock());
