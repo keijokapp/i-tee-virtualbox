@@ -16,13 +16,7 @@ server.on('error', e => {
 	logger.error('Server error', { error: e });
 });
 
-if('port' in config) {
-	server.listen(config.port, () => {
-		const address = server.address();
-		logger.info('Listening', { address: address.address, port: address.port });
-		notify.ready();
-	});
-} else if(config.listen === 'systemd') {
+if(config.listen === 'systemd') {
 	if(!process.env.LISTEN_FDS || parseInt(process.env.LISTEN_FDS, 10) !== 1) {
 		logger.error('No or too many file descriptors received');
 		process.exit(1);
