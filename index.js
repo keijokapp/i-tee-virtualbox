@@ -17,18 +17,22 @@ server.on('error', e => {
 });
 
 if(config.listen === 'systemd') {
-	if(!process.env.LISTEN_FDS || parseInt(process.env.LISTEN_FDS, 10) !== 1) {
-		logger.error('No or too many file descriptors received');
+	const socketCount = parseInt(process.env.LISTEN_FDS, 10);
+	if(!Number.isInteger(socketCount) || socketCount < 1) {
+		logger.error('Bad number of sockets', { socketCount });
 		process.exit(1);
 	}
 
-	if(PipeWrap.constants && typeof PipeWrap.constants.SOCKET !== 'undefined') {
-		server._handle = new Pipe(PipeWrap.constants.SOCKET);
-	} else {
-		server._handle = new Pipe();
+	for(let i = 0; i < socketCount; i++) {
+		const server = http.createServer(app);
+		if(PipeWrap.constants && typeof PipeWrap.constants.SOCKET !== 'undefined') {
+			server._handle = new Pipe(PipeWrap.constants.SOCKET);
+		} else {
+			server._handle = new Pipe();
+		}
+		server._handle.open(3 + i);
+		server._listen2(null, -1, -1);
 	}
-	server._handle.open(3);
-	server._listen2(null, -1, -1);
 	logger.info('Listening', { socket: process.env.LISTEN_FDNAMES });
 	notify.ready();
 } else {
