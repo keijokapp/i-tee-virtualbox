@@ -164,7 +164,9 @@ router.get('/machine', (0, _util.asyncMiddleware)(async (req, res) => {
  * @apiParam {string} machine Machine name
  * @apiParam {string} [image] Template name used to create macine if it does not exist
  * @apiParam {string[]} [groups] Groups to pot machine into
- * @apiParam {string[]} [networks] Networks to be assigned to NIC-s
+ * @apiParam {any[]} [networks] Objects and/or strings describing networks to be assigned to NIC-s
+ * @apiParam {string} networks.type Network type: 'bridged' or 'intnet'
+ * @apiParam {string} networks.name Network name
  * @apiParam {object} [dmi] DMI properties in `dmidecode` format
  * @apiParam {object} [rdp-username] RDP username
  * @apiParam {object} [rdp-password] RDP password
@@ -186,7 +188,17 @@ router.put('/machine/:machine', (0, _expressJsonschema.validate)({
 			},
 			networks: {
 				type: 'array',
-				items: { type: 'string' }
+				items: {
+					oneOf: [{
+						type: 'string'
+					}, {
+						type: 'object',
+						properties: {
+							type: { type: 'string', enum: ['bridged', 'intnet'] },
+							name: { type: 'string', minLength: 1 }
+						}
+					}]
+				}
 			},
 			'rdp-username': { type: 'string' },
 			'rdp-password': { type: 'string' },
@@ -230,7 +242,12 @@ router.put('/machine/:machine', (0, _expressJsonschema.validate)({
 
 		if ('networks' in req.body) {
 			for (let i = 0; i < req.body.networks.length; i++) {
-				await (0, _vmNetwork2.default)(name, i, req.body.networks[i]);
+				const network = req.body.networks[i];
+				if (typeof network === 'string') {
+					await (0, _vmNetwork2.default)(name, i, 'intnet', network);
+				} else {
+					await (0, _vmNetwork2.default)(name, i, network.type, network.name);
+				}
 			}
 		}
 

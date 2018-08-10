@@ -74,7 +74,9 @@ VirtualBox API provider for I-Tee
 | machine			| string			|  <p>Machine name</p>							|
 | image			| string			| **optional** <p>Template name used to create macine if it does not exist</p>							|
 | groups			| string[]			| **optional** <p>Groups to pot machine into</p>							|
-| networks			| string[]			| **optional** <p>Networks to be assigned to NIC-s</p>							|
+| networks			| any[]			| **optional** <p>Objects and/or strings describing networks to be assigned to NIC-s</p>							|
+| networks.type			| string			|  <p>Network type: 'bridged' or 'intnet'</p>							|
+| networks.name			| string			|  <p>Network name</p>							|
 | dmi			| object			| **optional** <p>DMI properties in <code>dmidecode</code> format</p>							|
 | rdp-username			| object			| **optional** <p>RDP username</p>							|
 | rdp-password			| object			| **optional** <p>RDP password</p>							|

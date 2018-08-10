@@ -222,13 +222,13 @@ describe('create machine', () => {
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
 		registerMock(['modifyvm', 'hehe', '--nic1', 'intnet'], mock());
 		registerMock(['modifyvm', 'hehe', '--intnet1', 'outnet'], mock());
-		registerMock(['modifyvm', 'hehe', '--nic2', 'intnet'], mock());
-		registerMock(['modifyvm', 'hehe', '--intnet2', 'intnet'], mock());
+		registerMock(['modifyvm', 'hehe', '--nic2', 'bridged'], mock());
+		registerMock(['modifyvm', 'hehe', '--bridgeadapter2', 'intnet'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe')
 			.send({
 				image: 'fuck',
-				networks: ['outnet', 'intnet']
+				networks: ['outnet', { type: 'bridged', name: 'intnet' }]
 			})
 			.expect(200);
 		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
