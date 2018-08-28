@@ -5,14 +5,12 @@
   "main": "index.js",
   "author": "Keijo Kapp <keijo.kapp@gmail.com>",
   "license": "MIT",
+  "bin": "./dist/index.js",
   "scripts": {
+    "build": "babel lib --out-dir dist",
     "test": "babel-node ./node_modules/.bin/_mocha test.js"
   },
   "dependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-syntax-async-functions": "^6.13.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
-    "babel-register": "^6.26.0",
     "express": "^4.16.3",
     "express-jsonschema": "^1.1.6",
     "express-winston": "^2.5.1",
@@ -21,6 +19,9 @@
     "winston": "^3.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "apidoc": "^0.17.6",
     "apidoc-markdown": "^0.2.0",
     "chai": "^4.1.2",
