@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 exports.logger = undefined;
+exports.lockMachine = lockMachine;
 
 var _winston = require('winston');
 
@@ -17,3 +18,11 @@ const logger = exports.logger = _winston2.default.createLogger({
 		level: 'debug'
 	})]
 });
+
+const machineLocks = {};
+
+async function lockMachine(name, callback) {
+	const promise = Promise.resolve(machineLocks[name]).then(callback);
+	machineLocks[name] = promise.catch(e => {});
+	return await promise;
+}
