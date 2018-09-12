@@ -325,11 +325,21 @@ router.put('/machine/:machine', (0, _expressJsonschema.validate)({
  */
 router.get('/machine/:machine', (0, _util.asyncMiddleware)(async (req, res) => {
 	const name = req.params.machine;
-	const vmInfo = await (0, _vmInfo2.default)(name);
-	if ('ip' in req.query) {
-		vmInfo.ip = await (0, _vmIp2.default)(name);
+	try {
+		const vmInfo = await (0, _vmInfo2.default)(name);
+		if ('ip' in req.query) {
+			vmInfo.ip = await (0, _vmIp2.default)(name);
+		}
+		res.send(vmInfo);
+	} catch (e) {
+		if (e.vboxError === 'Not found') {
+			res.status(404).send({
+				error: 'Not found'
+			});
+		} else {
+			throw e;
+		}
 	}
-	res.send(vmInfo);
 }));
 
 /**
@@ -339,11 +349,19 @@ router.get('/machine/:machine', (0, _util.asyncMiddleware)(async (req, res) => {
  */
 router.delete('/machine/:machine', (0, _util.asyncMiddleware)(async (req, res) => {
 	const name = req.params.machine;
-
-	await (0, _vmPoweroff2.default)(name, false);
-	await (0, _vmDelete2.default)(name);
-
-	res.send({});
+	try {
+		await (0, _vmPoweroff2.default)(name, false);
+		await (0, _vmDelete2.default)(name);
+		res.send({});
+	} catch (e) {
+		if (e.vboxError === 'Not found') {
+			res.status(404).send({
+				error: 'Not found'
+			});
+		} else {
+			throw e;
+		}
+	}
 }));
 
 /**
@@ -353,13 +371,20 @@ router.delete('/machine/:machine', (0, _util.asyncMiddleware)(async (req, res) =
  * @apiParam {object} snapshot Snapshot name
  */
 router.post('/machine/:machine/snapshot/:snapshot', (0, _util.asyncMiddleware)(async (req, res) => {
-
 	const name = req.params.machine;
 	const snapshot = req.params.snapshot;
-
-	await (0, _vmSnapshot2.default)(name, snapshot);
-
-	res.send({});
+	try {
+		await (0, _vmSnapshot2.default)(name, snapshot);
+		res.send({});
+	} catch (e) {
+		if (e.vboxError === 'Not found') {
+			res.status(404).send({
+				error: 'Not found'
+			});
+		} else {
+			throw e;
+		}
+	}
 }));
 
 /**
@@ -371,8 +396,16 @@ router.post('/machine/:machine/snapshot/:snapshot', (0, _util.asyncMiddleware)(a
 router.delete('/machine/:machine/snapshot/:snapshot', (0, _util.asyncMiddleware)(async (req, res) => {
 	const name = req.params.machine;
 	const snapshot = req.params.snapshot;
-
-	(0, _vmSnapshot2.default)(name, snapshot, false);
-
-	res.send({});
+	try {
+		(0, _vmSnapshot2.default)(name, snapshot, false);
+		res.send({});
+	} catch (e) {
+		if (e.vboxError === 'Not found') {
+			res.status(404).send({
+				error: 'Not found'
+			});
+		} else {
+			throw e;
+		}
+	}
 }));

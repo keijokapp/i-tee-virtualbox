@@ -41,12 +41,8 @@ app.use((req, res, next) => {
 
 app.use((e, req, res, next) => {
 	if ('vboxError' in e) {
-		if (e.vboxError === 'Not found') {
-			res.status(404);
-		} else {
-			res.status(500);
-		}
-		res.send({
+		_common.logger.error('VirtualBox error', { args: e.args, error: e.message });
+		res.status(500).send({
 			error: e.vboxError
 		});
 	} else if (e instanceof SyntaxError || e.name === 'JsonSchemaValidation') {

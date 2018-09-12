@@ -12,7 +12,7 @@ exports.default = async function (...args) {
 	return new Promise((resolve, reject) => {
 		(0, _child_process.execFile)('vboxmanage', args, (e, stdout) => {
 			if (e) {
-				_common.logger.error('VirtualBox error', { args: args, error: e.message });
+				e.args = args;
 				if (~e.message.indexOf('Could not find a registered machine named')) {
 					e.vboxError = 'Not found';
 				} else {
