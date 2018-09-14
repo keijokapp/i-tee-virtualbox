@@ -5,6 +5,10 @@ import mockery from 'mockery';
 import shellEscape from 'shell-escape';
 
 
+// override arguments for configuration predictability
+process.argv = [ 'node', 'test.js', '--token', 'test-token', '--token', 'another-test-token' ];
+
+
 // Mock child_process#execFile
 
 var mocks;
@@ -43,6 +47,7 @@ mockery.enable({
 });
 mockery.registerMock('child_process', childProcessMock);
 
+
 function mock(err, stdout) {
 	return function cb(execFileCallback) {
 		if(err && typeof err === 'string') {
@@ -62,7 +67,7 @@ const request = supertest(app);
 describe('list machines', () => {
 	it('should list all machines', async () => {
 		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
-		const res = await request.get('/machine')
+		const res = await request.get('/machine?access_token=another-test-token')
 			.expect(200);
 		expect(res.body).to.deep.equal([
 			{ id: 'qasd', uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f' },
@@ -72,7 +77,7 @@ describe('list machines', () => {
 
 	it('should list running machines', async () => {
 		registerMock(['list', 'runningvms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
-		const res = await request.get('/machine?running')
+		const res = await request.get('/machine?access_token=test-token&running')
 			.expect(200);
 		expect(res.body).to.deep.equal([
 			{ id: 'qasd', uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f' },
@@ -84,7 +89,7 @@ describe('list machines', () => {
 		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
 		registerMock(['showvminfo', 'qasd', '--machinereadable'], mock(null, 'UUID="8a8abd5c-de63-4926-944f-7489b61bc88f"\nVMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
 		registerMock(['showvminfo', 'qasdfasd', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="poweroff"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
-		const res = await request.get('/machine?detailed')
+		const res = await request.get('/machine?access_token=test-token&detailed')
 			.expect(200);
 		expect(res.body).to.deep.equal([{
 			state: 'running',
@@ -105,7 +110,7 @@ describe('list machines', () => {
 		registerMock(['list', 'vms'], mock(null, '"qasd" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"qasdfasd" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n'));
 		registerMock(['guestproperty', 'enumerate', 'qasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.10, timestamp: 1530013620606737000, flags: \nName: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 192.168.6.11, timestamp: 1530013630603413000, flags: \n'));
 		registerMock(['guestproperty', 'enumerate', 'qasdfasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
-		const res = await request.get('/machine?ip')
+		const res = await request.get('/machine?access_token=test-token&ip')
 			.expect(200);
 		expect(res.body).to.deep.equal([{
 			id: 'qasd',
@@ -131,7 +136,7 @@ describe('list machines', () => {
 		registerMock(['showvminfo', 'qasdfasd', '--machinereadable'], mock(null, 'VMState="poweroff"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
 		registerMock(['guestproperty', 'enumerate', 'qasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.10, timestamp: 1530013620606737000, flags: \nName: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 192.168.6.11, timestamp: 1530013630603413000, flags: \n'));
 		registerMock(['guestproperty', 'enumerate', 'qasdfasd', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
-		const res = await request.get('/machine?detailed&ip')
+		const res = await request.get('/machine?access_token=test-token&detailed&ip')
 			.expect(200);
 		expect(res.body).to.deep.equal([{
 			state: 'running',
@@ -157,7 +162,7 @@ describe('list machines', () => {
 
 	it('should filter machines with regex', async () => {
 		registerMock(['list', 'vms'], mock(null, '"a123o" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"dlskfmkngmn" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n"a0-2" {32e53eab-8e77-462d-b708-bbe678e490fd}'));
-		const res = await request.get('/machine?filter=' + encodeURIComponent('^a[0-9]+'))
+		const res = await request.get('/machine?access_token=test-token&filter=' + encodeURIComponent('^a[0-9]+'))
 			.expect(200);
 		expect(res.body).to.deep.equal([
 			{ id: 'a123o', uuid: '8a8abd5c-de63-4926-944f-7489b61bc88f' },
@@ -167,7 +172,7 @@ describe('list machines', () => {
 
 	it('fail listning machines because of unsafe filter', async () => {
 		registerMock(['list', 'vms'], mock(null, '"a123o" {8a8abd5c-de63-4926-944f-7489b61bc88f}\n"dlskfmkngmn" {dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e}\n"a0-2" {32e53eab-8e77-462d-b708-bbe678e490fd}'));
-		const res = await request.get('/machine?filter=' + encodeURIComponent('^a([0-9]+){2}'))
+		const res = await request.get('/machine?access_token=test-token&filter=' + encodeURIComponent('^a([0-9]+){2}'))
 			.expect(400);
 		expect(res.body).to.deep.equal({ error: 'Bad request', message: 'Given filter is considered unsafe' });
 	});
@@ -179,7 +184,7 @@ describe('create machine', () => {
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock(null, 'CurrentSnapshotName="test-snapshot"'));
 		registerMock(['clonevm', 'fuck', '--snapshot', 'test-snapshot', '--name', 'hehe', '--options', 'link', '--register'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck'
 			})
@@ -193,7 +198,7 @@ describe('create machine', () => {
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock());
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck'
 			})
@@ -207,7 +212,7 @@ describe('create machine', () => {
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
 		registerMock(['modifyvm', 'hehe', '--groups', 'fuckery1,fuckery2'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
 				groups: ['fuckery1', 'fuckery2']
@@ -225,7 +230,7 @@ describe('create machine', () => {
 		registerMock(['modifyvm', 'hehe', '--nic2', 'bridged'], mock());
 		registerMock(['modifyvm', 'hehe', '--bridgeadapter2', 'intnet'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
 				networks: ['outnet', { type: 'bridged', name: 'intnet' }]
@@ -245,7 +250,7 @@ describe('create machine', () => {
 		registerMock(['setextradata', 'hehe', 'VBoxInternal/Devices/pcbios/0/Config/DmiSystemVersion', 'system version'], mock());
 		registerMock(['setextradata', 'hehe', 'VBoxInternal/Devices/pcbios/0/Config/DmiSystemSerial', 'system serial number'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
 				dmi: {
@@ -269,7 +274,7 @@ describe('create machine', () => {
 		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
 		registerMock(['setextradata', 'hehe', 'VBoxAuthSimple/users/random-username', '21937d294d34fe2a07098595fc91a0e347bd30c32cc20afd7086367e46d6c599'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
 				'rdp-username': 'random-username',
@@ -285,7 +290,7 @@ describe('create machine', () => {
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
 				state: 'starting'
@@ -303,7 +308,7 @@ describe('create machine', () => {
 		registerMock(['setextradata', 'hehe', 'VBoxAuthSimple/users/random-username', '21937d294d34fe2a07098595fc91a0e347bd30c32cc20afd7086367e46d6c599'], mock());
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=8693'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
 				state: 'starting',
@@ -323,7 +328,7 @@ describe('create machine', () => {
 describe('get machine info', () => {
 	it('retrieve machine info w/ RDP and snapshot', async () => {
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693\nCurrentSnapshotName="s4st;e4tjs;g"'));
-		const res = await request.get('/machine/hehe')
+		const res = await request.get('/machine/hehe?access_token=test-token')
 			.expect(200);
 		expect(res.body).to.deep.equal({
 			id: 'hehe',
@@ -336,7 +341,7 @@ describe('get machine info', () => {
 
 	it('retrieve machine info w/o RDP and snapshot', async () => {
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
-		const res = await request.get('/machine/hehe')
+		const res = await request.get('/machine/hehe?access_token=test-token')
 			.expect(200);
 		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
 	});
@@ -344,7 +349,7 @@ describe('get machine info', () => {
 	it('retrieve machine info and IP-s', async () => {
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		registerMock(['guestproperty', 'enumerate', 'hehe', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
-		const res = await request.get('/machine/hehe?ip')
+		const res = await request.get('/machine/hehe?access_token=test-token&ip')
 			.expect(200);
 		expect(res.body).to.deep.equal({
 			id: 'hehe',
@@ -363,7 +368,7 @@ describe('update machine', () => {
 	it('set machine state to starting', async () => {
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				state: 'starting'
 			})
@@ -379,7 +384,7 @@ describe('update machine', () => {
 	it('set machine state to running', async () => {
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				state: 'running'
 			})
@@ -395,7 +400,7 @@ describe('update machine', () => {
 	it('set machine state to poweroff', async () => {
 		registerMock(['controlvm', 'hehe', 'poweroff'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="poweroff"\nvrde="on"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				state: 'poweroff'
 			})
@@ -407,7 +412,7 @@ describe('update machine', () => {
 		registerMock(['controlvm', 'hehe', 'vrde', 'off'], mock());
 		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				'rdp-username': 'asd'
 			})
@@ -423,7 +428,7 @@ describe('update machine', () => {
 	it('set machine state to acpipowerbutton', async () => {
 		registerMock(['controlvm', 'hehe', 'acpipowerbutton'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=-1'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				state: 'acpipowerbutton'
 			})
@@ -435,7 +440,7 @@ describe('update machine', () => {
 		registerMock(['controlvm', 'hehe', 'vrde', 'off'], mock());
 		registerMock(['controlvm', 'hehe', 'vrde', 'on'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				'rdp-username': 'asd'
 			})
@@ -454,7 +459,7 @@ describe('update machine', () => {
 		registerMock(['modifyvm', 'hehe', '--nic2', 'intnet'], mock('is already locked for a session'));
 		registerMock(['controlvm', 'hehe', 'nic2', 'intnet', 'intnet'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"'));
-		const res = await request.put('/machine/hehe')
+		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
 				networks: ['outnet', 'intnet']
@@ -467,7 +472,7 @@ describe('update machine', () => {
 		registerMock(['startvm', 'hehe', '--type', 'headless'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'UUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrde="on"\nvrdeport=8693'));
 		registerMock(['guestproperty', 'enumerate', 'hehe', '--patterns', '/VirtualBox/GuestInfo/Net/*/V4/IP'], mock(null, 'Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 172.16.22.102, timestamp: 1530013611475011000, flags: \nName: /VirtualBox/GuestInfo/Net/1/V4/IP, value: 192.168.6.254, timestamp: 1530013611477008000, flags: \n'));
-		const res = await request.put('/machine/hehe?ip')
+		const res = await request.put('/machine/hehe?access_token=test-token&ip')
 			.send({
 				state: 'running'
 			})
@@ -489,7 +494,7 @@ describe('delete machine', () => {
 	it('delete machine', async () => {
 		registerMock(['controlvm', 'hehe', 'poweroff'], mock());
 		registerMock(['unregistervm', 'hehe', '--delete'], mock());
-		const res = await request.delete('/machine/hehe')
+		const res = await request.delete('/machine/hehe?access_token=test-token')
 			.expect(200);
 	});
 });
@@ -497,7 +502,7 @@ describe('delete machine', () => {
 describe('create snapshot', () => {
 	it('creates snapshot', async () => {
 		registerMock(['snapshot', 'hehe', 'take', 'some-snapshot'], mock());
-		const res = await request.post('/machine/hehe/snapshot/some-snapshot')
+		const res = await request.post('/machine/hehe/snapshot/some-snapshot?access_token=test-token')
 			.expect(200);
 	});
 });
@@ -505,7 +510,19 @@ describe('create snapshot', () => {
 describe('delete snapshot', () => {
 	it('creates snapshot', async () => {
 		registerMock(['snapshot', 'hehe', 'delete', 'some-snapshot'], mock());
-		const res = await request.delete('/machine/hehe/snapshot/some-snapshot')
+		const res = await request.delete('/machine/hehe/snapshot/some-snapshot?access_token=test-token')
 			.expect(200);
+	});
+});
+
+describe('authorization', () => {
+	it('should disallow unauthorized use', async() => {
+		const res = await request.get('/machine/hehe')
+			.expect(403);
+	});
+
+	it('should disallow unauthorized use', async() => {
+		const res = await request.get('/machine/hehe')
+			.expect(403);
 	});
 });

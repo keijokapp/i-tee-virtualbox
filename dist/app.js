@@ -12,6 +12,14 @@ var _expressWinston = require('express-winston');
 
 var _expressWinston2 = _interopRequireDefault(_expressWinston);
 
+var _expressBearerToken = require('express-bearer-token');
+
+var _expressBearerToken2 = _interopRequireDefault(_expressBearerToken);
+
+var _config = require('./config');
+
+var _config2 = _interopRequireDefault(_config);
+
 var _common = require('./common');
 
 var _routes = require('./routes');
@@ -29,6 +37,19 @@ app.set('json spaces', 2);
 app.use(_expressWinston2.default.logger({ winstonInstance: _common.logger }));
 
 app.use(_express2.default.json());
+
+if (_config2.default.tokens.length) {
+	app.use((0, _expressBearerToken2.default)());
+	app.use((req, res, next) => {
+		if (_config2.default.tokens.includes(req.token)) {
+			next();
+		} else {
+			res.status(403).send({
+				error: 'Forbidden'
+			});
+		}
+	});
+}
 
 app.use(_routes2.default);
 
