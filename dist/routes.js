@@ -168,8 +168,8 @@ router.get('/machine', (0, _util.asyncMiddleware)(async (req, res) => {
  * @apiParam {string} networks.type Network type: 'bridged' or 'intnet'
  * @apiParam {string} networks.name Network name
  * @apiParam {object} [dmi] DMI properties in `dmidecode` format
- * @apiParam {object} [rdp-username] RDP username
- * @apiParam {object} [rdp-password] RDP password
+ * @apiParam {string} [rdp-username] RDP username
+ * @apiParam {string} [rdp-password] RDP password
  * @apiParam {string} [state] State of the machine
  * @apiSuccess {string} id ID (name) of the machine
  * @apiSuccess {string} uuid UUID of the machine

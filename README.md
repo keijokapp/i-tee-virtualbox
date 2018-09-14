@@ -78,8 +78,8 @@ VirtualBox API provider for I-Tee
 | networks.type			| string			|  <p>Network type: 'bridged' or 'intnet'</p>							|
 | networks.name			| string			|  <p>Network name</p>							|
 | dmi			| object			| **optional** <p>DMI properties in <code>dmidecode</code> format</p>							|
-| rdp-username			| object			| **optional** <p>RDP username</p>							|
-| rdp-password			| object			| **optional** <p>RDP password</p>							|
+| rdp-username			| string			| **optional** <p>RDP username</p>							|
+| rdp-password			| string			| **optional** <p>RDP password</p>							|
 | state			| string			| **optional** <p>State of the machine</p>							|
 
 # Snapshot
