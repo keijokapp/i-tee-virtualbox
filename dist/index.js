@@ -28,11 +28,15 @@ function ready() {
 	}
 }
 
-const server = _http2.default.createServer(_app2.default);
+function createServer() {
+	const server = _http2.default.createServer(_app2.default);
 
-server.on('error', e => {
-	_common.logger.error('Server error', { error: e });
-});
+	server.on('error', e => {
+		_common.logger.error('Server error', { error: e });
+	});
+
+	return server;
+}
 
 if (_config2.default.listen === 'systemd') {
 	const socketCount = parseInt(process.env.LISTEN_FDS, 10);
@@ -42,7 +46,7 @@ if (_config2.default.listen === 'systemd') {
 	}
 
 	for (let i = 0; i < socketCount; i++) {
-		const server = _http2.default.createServer(_app2.default);
+		const server = createServer();
 		if (PipeWrap.constants && typeof PipeWrap.constants.SOCKET !== 'undefined') {
 			server._handle = new Pipe(PipeWrap.constants.SOCKET);
 		} else {
@@ -54,6 +58,7 @@ if (_config2.default.listen === 'systemd') {
 	_common.logger.info('Listening', { socket: process.env.LISTEN_FDNAMES });
 	ready();
 } else {
+	const server = createServer();
 	server.listen(_config2.default.listen.port, _config2.default.listen.address, () => {
 		const address = server.address();
 		_common.logger.info('Listening', { address: address.address, port: address.port });
