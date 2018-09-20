@@ -16,8 +16,10 @@
     "express-jsonschema": "^1.1.6",
     "express-winston": "^2.5.1",
     "safe-regex": "^1.1.0",
-    "sd-notify": "^2.3.0",
     "winston": "^3.0.0"
+  },
+  "optionalDependencies": {
+    "sd-notify": "^2.3.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

@@ -5,10 +5,6 @@ var _http = require('http');
 
 var _http2 = _interopRequireDefault(_http);
 
-var _sdNotify = require('sd-notify');
-
-var _sdNotify2 = _interopRequireDefault(_sdNotify);
-
 var _common = require('./common');
 
 var _config = require('./config');
@@ -23,6 +19,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const PipeWrap = process.binding('pipe_wrap');
 const Pipe = PipeWrap.Pipe;
+
+function ready() {
+	try {
+		require('sd-notify').ready();
+	} catch (e) {
+		_common.logger.debug('Systemd notifications are not available');
+	}
+}
 
 const server = _http2.default.createServer(_app2.default);
 
@@ -48,11 +52,11 @@ if (_config2.default.listen === 'systemd') {
 		server._listen2(null, -1, -1);
 	}
 	_common.logger.info('Listening', { socket: process.env.LISTEN_FDNAMES });
-	_sdNotify2.default.ready();
+	ready();
 } else {
 	server.listen(_config2.default.listen.port, _config2.default.listen.address, () => {
 		const address = server.address();
 		_common.logger.info('Listening', { address: address.address, port: address.port });
-		_sdNotify2.default.ready();
+		ready();
 	});
 }
