@@ -13,7 +13,7 @@ exports.default = async function (...args) {
 		(0, _child_process.execFile)('vboxmanage', args, (e, stdout) => {
 			if (e) {
 				e.args = args;
-				if (~e.message.indexOf('Could not find a registered machine named')) {
+				if (e.message.includes('Could not find a registered machine named') || e.message.includes('Could not find a registered machine with UUID')) {
 					e.vboxError = 'Not found';
 				} else {
 					e.vboxError = 'Hypervisor error';
