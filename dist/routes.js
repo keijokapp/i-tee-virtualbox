@@ -139,16 +139,22 @@ router.get('/machine', (0, _util.asyncMiddleware)(async (req, res) => {
 	const wantIps = 'ip' in req.query;
 
 	if (wantDetails || wantIps) {
-		const promises = machines.map(async ({ id }, i) => {
-			if (wantDetails) {
-				const info = await (0, _vmInfo2.default)(id);
-				for (const j in info) {
-					machines[i][j] = info[j];
+		const promises = machines.map(async ({ uuid }, i) => {
+			try {
+				if (wantDetails) {
+					const info = await (0, _vmInfo2.default)(uuid);
+					for (const j in info) {
+						machines[i][j] = info[j];
+					}
 				}
-			}
 
-			if (wantIps) {
-				machines[i].ip = await (0, _vmIp2.default)(id);
+				if (wantIps) {
+					machines[i].ip = await (0, _vmIp2.default)(uuid);
+				}
+			} catch (e) {
+				if (e.vboxError !== 'Not Found') {
+					throw e;
+				}
 			}
 		});
 		await Promise.all(promises);

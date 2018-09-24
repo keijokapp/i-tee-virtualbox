@@ -36,7 +36,7 @@ exports.default = async function (name) {
 	});
 
 	const ret = {
-		id: name,
+		id: vmInfo['name'],
 		uuid: vmInfo['UUID'],
 		state: vmInfo['VMState']
 	};
