@@ -190,7 +190,7 @@ router.put('/machine/:machine', (0, _expressJsonschema.validate)({
 			image: { type: 'string' },
 			groups: {
 				type: 'array',
-				items: { type: 'string' }
+				items: { type: 'string', pattern: '^/[0-9a-zA-Z_-]*$' }
 			},
 			networks: {
 				type: 'array',

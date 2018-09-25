@@ -207,15 +207,15 @@ describe('create machine', () => {
 	});
 
 	it('should create machine with groups', async () => {
-		registerMock(['modifyvm', 'hehe', '--groups', 'fuckery1,fuckery2'], mock('Could not find a registered machine named'));
+		registerMock(['modifyvm', 'hehe', '--groups', '/fuckery1,/fuckery2'], mock('Could not find a registered machine named'));
 		registerMock(['showvminfo', 'fuck', '--machinereadable'], mock());
 		registerMock(['clonevm', 'fuck', '--name', 'hehe', '--register'], mock());
-		registerMock(['modifyvm', 'hehe', '--groups', 'fuckery1,fuckery2'], mock());
+		registerMock(['modifyvm', 'hehe', '--groups', '/fuckery1,/fuckery2'], mock());
 		registerMock(['showvminfo', 'hehe', '--machinereadable'], mock(null, 'name="hehe"\nUUID="dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e"\nVMState="running"\nvrdeport=-1'));
 		const res = await request.put('/machine/hehe?access_token=test-token')
 			.send({
 				image: 'fuck',
-				groups: ['fuckery1', 'fuckery2']
+				groups: ['/fuckery1', '/fuckery2']
 			})
 			.expect(200);
 		expect(res.body).to.deep.equal({ id: 'hehe', uuid: 'dc58f1c2-2e7c-11e7-8125-ffb8cff4b49e', state: 'running' });
