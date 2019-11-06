@@ -11,26 +11,27 @@
     "test": "babel-node ./node_modules/.bin/_mocha test.js"
   },
   "dependencies": {
-    "express": "^4.16.3",
-    "express-bearer-token": "^2.2.0",
+    "express": "^4.17.1",
+    "express-bearer-token": "^2.4.0",
     "express-jsonschema": "^1.1.6",
-    "express-winston": "^2.5.1",
-    "safe-regex": "^1.1.0",
-    "winston": "^3.0.0"
+    "express-winston": "^4.0.1",
+    "safe-regex": "^2.1.1",
+    "winston": "^3.2.1"
   },
   "optionalDependencies": {
-    "sd-notify": "^2.3.0"
+    "sd-notify": "^2.7.2"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-syntax-async-functions": "^6.13.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
-    "apidoc": "^0.17.6",
-    "apidoc-markdown": "^0.2.0",
-    "chai": "^4.1.2",
-    "mocha": "^5.2.0",
+    "@babel/core": "^7.7.0",
+    "@babel/cli": "^7.7.0",
+    "@babel/node": "^7.7.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.7.0",
+    "apidoc": "^0.17.7",
+    "apidoc-markdown": "^0.2.1",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
     "mockery": "^2.1.0",
     "shell-escape": "^0.2.0",
-    "supertest": "^3.1.0"
+    "supertest": "^4.0.2"
   }
 }

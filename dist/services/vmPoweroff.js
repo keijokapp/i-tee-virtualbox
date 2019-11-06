@@ -1,21 +1,20 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
+exports.default = _default;
 
-var _vboxmanage = require('./vboxmanage');
-
-var _vboxmanage2 = _interopRequireDefault(_vboxmanage);
+var _vboxmanage = _interopRequireDefault(require("./vboxmanage"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = async function (name, failOnStopped) {
-	try {
-		await (0, _vboxmanage2.default)('controlvm', name, 'poweroff');
-	} catch (e) {
-		if (failOnStopped || !e.message.includes('is not currently running')) {
-			throw e;
-		}
-	}
-};
+async function _default(name, failOnStopped) {
+  try {
+    await (0, _vboxmanage.default)('controlvm', name, 'poweroff');
+  } catch (e) {
+    if (failOnStopped || !e.message.includes('is not currently running')) {
+      throw e;
+    }
+  }
+}

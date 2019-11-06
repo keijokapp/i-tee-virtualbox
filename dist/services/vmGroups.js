@@ -1,15 +1,14 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
+exports.default = _default;
 
-var _vboxmanage = require('./vboxmanage');
-
-var _vboxmanage2 = _interopRequireDefault(_vboxmanage);
+var _vboxmanage = _interopRequireDefault(require("./vboxmanage"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = async function (name, groups) {
-	await (0, _vboxmanage2.default)('modifyvm', name, '--groups', groups.join(','));
-};
+async function _default(name, groups) {
+  await (0, _vboxmanage.default)('modifyvm', name, '--groups', groups.join(','));
+}

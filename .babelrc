@@ -1,3 +1,3 @@
 {
-  "plugins": [ "transform-es2015-modules-commonjs", "syntax-async-functions" ]
+  "plugins": [ "@babel/transform-modules-commonjs" ]
 }
